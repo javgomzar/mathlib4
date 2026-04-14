@@ -146,11 +146,7 @@ private instance : HasZeroMorphisms GrpCat where
 variable [HasZeroMorphisms GrpCat]
 
 instance : (free.{u}).PreservesMonomorphisms where
-  preserves {X Y} f hf := by
-    constructor
-    intro G g h h_fgh
-    have :
-    apply hom_ext
+  preserves {X Y} f hf := sorry
 
 section Abelianization
 
