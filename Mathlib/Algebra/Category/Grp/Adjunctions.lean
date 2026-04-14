@@ -6,9 +6,11 @@ Authors: Kim Morrison, Johannes Hölzl
 module
 
 public import Mathlib.Algebra.Category.Grp.Preadditive
+public import Mathlib.Algebra.Category.Grp.Zero
 public import Mathlib.GroupTheory.FreeAbelianGroup
 public import Mathlib.CategoryTheory.Adjunction.Limits
 public import Mathlib.CategoryTheory.Limits.Types.Coproducts
+public import Mathlib.CategoryTheory.Limits.Shapes.ZeroMorphisms
 
 /-!
 # Adjunctions regarding the category of (abelian) groups
@@ -96,8 +98,8 @@ instance : (free.{u}).PreservesMonomorphisms where
     by_cases! hX : IsEmpty X
     · constructor
       intros
-      apply (IsInitial.isInitialObj free _
-        ((Types.initial_iff_empty X).2 hX).some).isZero.eq_of_tgt
+      rw [←Types.initial_iff_empty] at hX
+      apply (IsInitial.isInitialObj free X hX.some).isZero.eq_of_tgt
     · have hf : Function.Injective f := by rwa [← mono_iff_injective]
       obtain ⟨g, hg⟩ := hf.hasLeftInverse
       have : IsSplitMono f := IsSplitMono.mk' { retraction := g }
@@ -126,8 +128,29 @@ def adj : free ⊣ forget GrpCat.{u} :=
         intros
         rfl }
 
+instance : free.{u}.IsLeftAdjoint :=
+  ⟨_, ⟨adj⟩⟩
+
 instance : (forget GrpCat.{u}).IsRightAdjoint :=
   ⟨_, ⟨adj⟩⟩
+
+-- Option 1
+private instance : HasZeroMorphisms GrpCat := HasZeroObject.zeroMorphismsOfZeroObject
+
+-- Option 2
+private instance : HasZeroMorphisms GrpCat where
+  zero X Y := ⟨ofHom 1⟩
+  zero_comp X {Y Z} f := by ext x; apply map_one f.hom
+
+-- Option 3
+variable [HasZeroMorphisms GrpCat]
+
+instance : (free.{u}).PreservesMonomorphisms where
+  preserves {X Y} f hf := by
+    constructor
+    intro G g h h_fgh
+    have :
+    apply hom_ext
 
 section Abelianization
 
