@@ -7,6 +7,7 @@ Authors: Michael Rothgang, Pepa Montero, Archibald Browne, Enrique Díaz, Juan J
 module
 
 public import Mathlib.Geometry.Manifold.ChartedSpace
+public import Mathlib.Geometry.Manifold.MFDeriv.Defs
 public import Mathlib.Topology.Covering.Quotient
 
 /-!
@@ -48,5 +49,15 @@ discontinuous group action. -/
 instance instChartedSpaceQuotient : ChartedSpace H (orbitRel.Quotient G M) :=
   isQuotientCoveringMap_quotientMk_of_properlyDiscontinuousSMul.isCoveringMap
     |>.isLocalHomeomorph.chartedSpace Quotient.mk_surjective
+
+variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E : Type*} [NormedAddCommGroup E]
+  [NormedSpace 𝕜 E] {I : ModelWithCorners 𝕜 E H}
+  (n : ℕ∞) [IsManifold I n M]
+  {M' : Type*} [TopologicalSpace M'] [ChartedSpace H M'] [IsManifold I n M']
+
+def relation (f : M → M') : Setoid M := Setoid.ker f
+
+theorem quotient_manifold (f : M → M') (hf: ∀ x : M, Function.Surjective (mfderiv I I f x)) :
+  IsManifold I n (Quotient (Setoid.ker f)) := sorry
 
 end MulAction
