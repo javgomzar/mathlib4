@@ -9,6 +9,8 @@ module
 public import Mathlib.Geometry.Manifold.ChartedSpace
 public import Mathlib.Geometry.Manifold.MFDeriv.Defs
 public import Mathlib.Topology.Covering.Quotient
+public import Mathlib.Geometry.Manifold.Submersion
+public import Mathlib.Geometry.Manifold.Diffeomorph
 
 /-!
 # Quotients of manifolds
@@ -31,13 +33,13 @@ smooth manifold, smooth action, quotient manifold
 
 public noncomputable section
 
+variable {H M : Type*} [TopologicalSpace M] [TopologicalSpace H] [ChartedSpace H M]
+
 namespace MulAction
 
-variable {M : Type*} [TopologicalSpace M]
-  {G : Type*} [Group G] [MulAction G M]
+variable {G : Type*} [Group G] [MulAction G M]
   [ProperlyDiscontinuousSMul G M] [ContinuousConstSMul G M] [IsCancelSMul G M]
   [T2Space M] [LocallyCompactSpace M]
-  {H : Type*} [TopologicalSpace H] [ChartedSpace H M]
 
 /-!
 ## Charted space structure on quotient by a group
@@ -50,14 +52,42 @@ instance instChartedSpaceQuotient : ChartedSpace H (orbitRel.Quotient G M) :=
   isQuotientCoveringMap_quotientMk_of_properlyDiscontinuousSMul.isCoveringMap
     |>.isLocalHomeomorph.chartedSpace Quotient.mk_surjective
 
-variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {E : Type*} [NormedAddCommGroup E]
-  [NormedSpace 𝕜 E] {I : ModelWithCorners 𝕜 E H}
-  (n : ℕ∞) [IsManifold I n M]
-  {M' : Type*} [TopologicalSpace M'] [ChartedSpace H M'] [IsManifold I n M']
-
-def relation (f : M → M') : Setoid M := Setoid.ker f
-
-theorem quotient_manifold (f : M → M') (hf: ∀ x : M, Function.Surjective (mfderiv I I f x)) :
-  IsManifold I n (Quotient (Setoid.ker f)) := sorry
-
 end MulAction
+
+namespace IsSubmersion
+
+open Manifold TopologicalSpace
+
+universe u
+
+variable {𝕜 H' E' N : Type*} {E : Type u} [NontriviallyNormedField 𝕜]
+  [TopologicalSpace N] [TopologicalSpace H'] [ChartedSpace H' N]
+  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
+  {I : ModelWithCorners 𝕜 E H} {I' : ModelWithCorners 𝕜 E' H'} {n : WithTop ℕ∞}
+  (f : M → N) (hf : IsSubmersion I I' n f) (hf' : Function.Surjective f)
+
+def quotientHomeomorph : Quotient (Setoid.ker f) ≃ₜ N := by
+  use Setoid.quotientKerEquivOfSurjective f hf'
+  · rw [continuous_def]
+    intros S hS
+    sorry
+  · sorry
+
+instance instChartedSpaceQuotient : ChartedSpace H' (Quotient (Setoid.ker f)) where
+  atlas := _
+  chartAt := by
+    intro x'
+    let y : N := f' x'
+    let φ := chartAt H' y
+    #check φ.source.restrict
+    refine OpenPartialHomeomorph.trans' ?_ φ ?_
+
+  mem_chart_source := _
+  chart_mem_atlas := _
+
+instance godement : N ≃ₘ^n⟮I', I'⟯ (Quotient (Setoid.ker f)) := sorry
+
+instance instSubmersionQuotientIsManifold : IsManifold I' n (Quotient (Setoid.ker f)) := sorry
+
+
+end IsSubmersion

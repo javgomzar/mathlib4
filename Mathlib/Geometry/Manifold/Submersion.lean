@@ -621,6 +621,22 @@ protected lemma id [IsManifold I n M] : IsSubmersion I I n (@id M) := by
   use PUnit, by infer_instance, by infer_instance
   exact IsSubmersionOfComplement.id
 
+/-- Trying things -/
+lemma isContinuous (h : IsSubmersion I J n f) : Continuous f := by
+  rw [continuous_iff_continuousAt]
+  intro x
+  obtain ⟨F, _, _, ⟨φ, ψ, hφx, hψfx, hφ, hψ, hφψ, ⟨equiv, hequiv⟩⟩⟩ := h.isSubmersionAt x
+  sorry
+
+lemma isQuotientMap (h : IsSubmersion I J n f) (hf : Function.Surjective f) :
+    Topology.IsQuotientMap f where
+  surjective := hf
+  eq_coinduced := by
+    ext U
+    constructor
+    · sorry
+    · sorry
+
 end IsSubmersion
 
 end Manifold
