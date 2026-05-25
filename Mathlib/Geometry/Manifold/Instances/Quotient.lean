@@ -60,34 +60,24 @@ open Manifold TopologicalSpace
 
 universe u
 
-variable {𝕜 H' E' N : Type*} {E : Type u} [NontriviallyNormedField 𝕜]
-  [TopologicalSpace N] [TopologicalSpace H'] [ChartedSpace H' N]
+variable {𝕜 E' : Type*} {E : Type u} [NontriviallyNormedField 𝕜]
   [NormedAddCommGroup E] [NormedSpace 𝕜 E] [NormedAddCommGroup E'] [NormedSpace 𝕜 E']
-  {I : ModelWithCorners 𝕜 E H} {I' : ModelWithCorners 𝕜 E' H'} {n : WithTop ℕ∞}
-  (f : M → N) (hf : IsSubmersion I I' n f) (hf' : Function.Surjective f)
+  {I : ModelWithCorners 𝕜 E H} {n : WithTop ℕ∞}
 
-def quotientHomeomorph : Quotient (Setoid.ker f) ≃ₜ N := by
-  use Setoid.quotientKerEquivOfSurjective f hf'
-  · rw [continuous_def]
-    intros S hS
-    sorry
-  · sorry
+structure RegularWitness (R : Setoid M) where
+  H' : Type*
+  tH' : TopologicalSpace H'
+  E' : Type*
+  nE' : NormedAddCommGroup E'
+  nsE' : NormedSpace 𝕜 E'
+  I' : ModelWithCorners 𝕜 E' H'
+  csQ : ChartedSpace H' (Quotient R)
+  imQ : IsManifold I' n (Quotient R)
+  smQ : IsSubmersion I I' n (Quotient.mk R)
 
-instance instChartedSpaceQuotient : ChartedSpace H' (Quotient (Setoid.ker f)) where
-  atlas := _
-  chartAt := by
-    intro x'
-    let y : N := f' x'
-    let φ := chartAt H' y
-    #check φ.source.restrict
-    refine OpenPartialHomeomorph.trans' ?_ φ ?_
+class IsRegular (R : Setoid M) where
+  reg := Nonempty (RegularWitness R)
 
-  mem_chart_source := _
-  chart_mem_atlas := _
-
-instance godement : N ≃ₘ^n⟮I', I'⟯ (Quotient (Setoid.ker f)) := sorry
-
-instance instSubmersionQuotientIsManifold : IsManifold I' n (Quotient (Setoid.ker f)) := sorry
-
+instance godement (R : Setoid M) : IsRegular R ↔ IsClosed (graph R) := sorry
 
 end IsSubmersion
