@@ -6,6 +6,7 @@ Authors: Newell Jensen, Mitchell Lee, Óscar Álvarez
 module
 
 public import Mathlib.GroupTheory.Coxeter.Matrix
+public import Mathlib.GroupTheory.Presentation
 public import Mathlib.GroupTheory.PresentedGroup
 public import Mathlib.Tactic.Ring
 
@@ -85,7 +86,7 @@ coxeter system, coxeter group
 
 @[expose] public section
 
-open Function Set List
+open Function Set List Group
 
 /-! ### Coxeter groups -/
 
@@ -109,6 +110,15 @@ protected abbrev Group : Type _ := PresentedGroup M.relationsSet
 
 /-- The simple reflection of the Coxeter group `M.Group` at the index `i`. -/
 abbrev simple (i : B) : M.Group := PresentedGroup.of i
+
+protected def Generators : Generators M.Group B where
+  val := M.simple
+  closure_eq_top := sorry
+
+protected def Presentation : Presentation M.Group B where
+  toGenerators := M.Generators
+  rel := M.relationsSet
+  lift_ker_eq_normalClosure := sorry
 
 theorem reindex_relationsSet :
     (M.reindex e).relationsSet =
@@ -153,9 +163,8 @@ variable {B : Type*} (M : CoxeterMatrix B)
 /-- A Coxeter system `CoxeterSystem M W` is a structure recording the isomorphism between
 a group `W` and the Coxeter group associated to a Coxeter matrix `M`. -/
 @[ext]
-structure CoxeterSystem (W : Type*) [Group W] where
-  /-- The isomorphism between `W` and the Coxeter group associated to `M`. -/
-  mulEquiv : W ≃* M.Group
+structure CoxeterSystem (W : Type*) [Group W] extends Presentation W B where
+  coxeter : rel = M.relationsSet
 
 /-- A group is a Coxeter group if it admits a Coxeter system for some Coxeter matrix `M`. -/
 class IsCoxeterGroup.{u} (W : Type u) [Group W] : Prop where
@@ -173,6 +182,8 @@ open CoxeterMatrix
 variable {B B' : Type*} (e : B ≃ B')
 variable {W H : Type*} [Group W] [Group H]
 variable {M : CoxeterMatrix B} (cs : CoxeterSystem M W)
+
+def mulEquiv (G : Type*) [Group G] (cs : CoxeterSystem M G) : G ≃* M.Group := sorry
 
 /-- Reindex a Coxeter system through a bijection of the indexing sets. -/
 @[simps]
